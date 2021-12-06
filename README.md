@@ -92,7 +92,7 @@ See the photo for more details.
 
 * For JP5 the jumper across all pins should be installed.
 
-* For JP9-10 the jumpers should be arranged to specify 0x9D (from top to bottom, short, open, open, short, short, short, open, short)
+* For JP9-10 the jumpers should be arranged to specify 0x9D (from top to bottom is MSB to LSB, left=VCC, right=GND so jumper order is LRRLLLRL)
 
 ## Tested devices
 
@@ -107,7 +107,7 @@ See the photo for more details.
    and self check program at F80 is different. 
    Most likely the data is correct but internally offset or this is another hardware variant with a different internal layout. More testing is needed.
 
-Note that all the chips run a little hot normally.
+Note that all the chips run a somewhat hot normally.
 The Arduino Uno I tested with draws about 40mA idle, and with a HD6805V1 installed it draws 120mA when the clock is static.
 But use caution when testing the PCB after assembly and check all voltages **before** inserting a chip and attempting to read it.
 
