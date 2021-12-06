@@ -92,7 +92,7 @@ See the photo for more details.
 
 * For JP11 pins 2-3 should be shorted together so that the Arduino 5V is used for the HD6805V1 +5V input.
 
-* For JP5 the jumper across all pins should be installed.
+* For JP5 the jumper across all pins should be installed. Note on the V1 board the middle jumper (XTL) should be left open.
 
 * For JP9-10 the jumpers should be arranged to specify 0x9D (from top to bottom is MSB to LSB, left=VCC, right=GND so jumper order is LRRLLLRL)
 
@@ -152,7 +152,7 @@ This arrangement would allow the HD6805V1 to execute program code from an extern
 
 What's missing is a signal used to demultiplex port B. Hitachi's US patent 5,179,694 describes a function for the HD6301V microcontroller where the E clock (a synchronization signal that runs at 1/4th of the oscillator clock) isn't normally accessible but can be output in some conditions. It follows with a brief note that the HD6805 NUM pin performs a similar function when it is pulled high, outputting the sync signal for device testing purposes.
 
-Tests on the HD6805V1 confirm this; in non-user mode the NUM pin will then output a clock signal at 1/4th of the rate presented on the EXTAL pin. Conceptually this seems to map closest to the MC146805E2's DS signal.
+Tests on the HD6805V1 confirm this; in non-user mode the NUM pin will then output a clock signal at 1/4th of the rate presented on the EXTAL pin. Conceptually this seems to map closest to the MC146805E2's DS signal. This can be used to demultiplex port B.
 
 ## Device configuration in NUM mode for dumping internal ROM
 
