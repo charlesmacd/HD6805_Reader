@@ -1,0 +1,1 @@
+@g++ main.cpp comms.cpp utility.cpp winserial.cpp -o hdread.exe -static -I. -std=c++17
