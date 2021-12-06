@@ -143,12 +143,12 @@ In non-user mode the I/O ports are repurposed to present an external memory bus 
 
 * Port A is the external data bus where opcodes are input.
 * Port B is multiplexed between part of the address bus and the internal data bus.
-* Port C outputs several address lines on PC[2:0] and a control signal, possibly R/W# on PC3.
+* Port C outputs several address lines on PC[4,2:0] and a control signal, possibly R/W# on PC3.
 
 This arrangement would allow the HD6805V1 to execute program code from an external EPROM. A slight difference between it and the MC146805E2 is how the address bus is arranged:
 
 * PB[7:0] => {A9, A8, A5, A5, A6, A1, A7, A0}
-* PC[2:0] => {A3, A2, A10}
+* PC[4,2:0] => {A11, A3, A2, A10}
 
 What's missing is a signal used to demultiplex port B. Hitachi's US patent 5,179,694 describes a function for the HD6301V microcontroller where the E clock (a synchronization signal that runs at 1/4th of the oscillator clock) isn't normally accessible but can be output in some conditions. It follows with a brief note that the HD6805 NUM pin performs a similar function when it is pulled high, outputting the sync signal for device testing purposes.
 
