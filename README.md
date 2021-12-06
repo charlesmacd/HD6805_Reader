@@ -171,7 +171,7 @@ For dumping ROM data I configured the pins as follows on the Arduino shield:
 
 ## Exploiting non-user mode
 
-The most useful side effect of non-user mode is that the internal data bus multiplexed on port B outputs whatever internal memory location the program counter is currently addressing, allowing the entirety of the HD6805V1 address space to be read out. To control this process to dump ROM data a simple opcode like NOP or RSP can be driven on to port A and the HD6805 will continuously execute it, output data from the current internal address, and increment the program counter by one. This process can continue indefinitely until all ROM data has been read.
+The most useful side effect of non-user mode is that the internal data bus multiplexed on port B outputs whatever internal memory location the program counter is currently addressing, allowing the entirety of the HD6805V1 address space to be read out. To control this process to dump ROM data a simple 1-byte instruction like NOP or RSP can have their opcode driven on to port A and the HD6805 will continuously execute it, output data from the current internal address, and increment the program counter by one. This process can continue indefinitely until all ROM data has been read.
 
 ## Reset timing
 
@@ -196,6 +196,9 @@ Since we're gating NOP (0x9D) on to port A, the reset vector read is 0xD9D.
 * Clock cycle 4 : NUM high, port B outputs internal data bus. At the next clock edge the program counter increments.
 
 As long as NOP or a similar type of opcode is presented this sequence repeats indefinitely.
+
+Here cycles 3,4 present the same data and address as cycles 1,2. When reading ROM the data will be consistent, but when reading first 128 bytes assigned to
+I/O, RAM, and unused locations the data can differ.
 
 ## Dumping ROM data
 
