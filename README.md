@@ -21,14 +21,16 @@ This project came about from the need to read the HD6805V1 MCU used in Sega's SP
 	Utility source code
 /firmware
 	Arduino Uno firmware
-/pcb/v1
+/pcb/v1 
+        Prototype shield
 	Eagle schematics and layout for the first version of the shield. 
 	Needs some wire links and a capacitor marked in yellow.
 /pcb/v2
+        Revised version of shield
 	Eagle schematics and layout for the second version, fixes all the issues in v1
 /pcb/gerbers
 	Gerber files. These were set up using design rules for Elecrow/JLCPCB but 
-	you definitely want to generate your own gerber	files for your the fab you use.
+	you definitely want to generate your own gerber	files for the fab you use.
 /images
 	Pictures of the shield
 /datasheets
