@@ -99,15 +99,15 @@ See the photo for more details.
 ## Tested devices
 
 1. ```Hitachi HD6805V1P A08```
-   Dump seems good.
+   Dump seems good. Internal checksum is 0xEA.
 
 2. ```Termbray 117-017 HD6805V1B65P 8A3```
-   Dump seems good.
+   Dump seems good. Internal checksum is 0x8A. Same self-check ROM content as above.
 
 3. ```Hitachi HD6805V1A81P 800-5 A24```
-   Valid code but first 128 bytes looks a little different
-   and self check program at F80 is different. 
-   Most likely the data is correct but internally offset or this is another hardware variant with a different internal layout. More testing is needed.
+
+   Dump seems good. This is a variant where the self-check ROM is not present and instead contains more customer ROM code and data.
+   Thus the self-check mode is not supported and only the user vector table is present.
 
 Note that all the chips run a somewhat hot normally.
 The Arduino Uno I tested with draws about 40mA idle, and with a HD6805V1 installed it draws 120mA when the clock is static.
