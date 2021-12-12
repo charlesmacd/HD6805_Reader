@@ -72,6 +72,34 @@ Status: Writing decoded data to `dump.bin.log'.
 
 Note that while the entire 4K address space is dumped ROM data only corresponds to offsets 0x0080 to 0xFFF. The first 128 bytes are mapped to internal I/O, RAM, and unused areas and will not be consistent from dump to dump. The utility program blanks them out to 0xFF, but doesn't do that to the log file.
 
+## Analyzing dumped data
+
+You can run ```hdread check <file.bin>``` to analyze the self-check ROM data, if present. For a HD6805V1 it reports the following:
+
+```
+Self-check vectors:
+* TIMER = $0FEA
+* INT#  = $0FEC
+* SWI   = $0FE7
+* RES#  = $0F80
+Customer vectors:
+* TIMER = $0A46
+* INT#  = $0A10
+* SWI   = $07F0
+* RES#  = $06E0
+Self-check ROM analysis:
+* Reset vector is valid.
+* Internal checksum   = EA
+* Calculated checksum = EA
+* ROM SHA256 = 9088fee917e5a748c2f0b4f5458c1cbdabbd696291c69be6e605bae0ef779e8f
+* ROM matches device type HD6805V1
+```
+
+The internal checksum is stored within the self-check ROM at address 0xFEF. It is computed by calculating the exclusive OR of all bytes from 0x080 to 0xFFF excluding 0xFEF and inverting the result. If the internal and calculated checksums don't match it's likely the ROM dump is bad and should be redumped.
+
+The sha256sum covers addresses 0xF80 through 0xFE7. Two devices I dumped have identical programs, but it's possible other HD6805 variants have different
+self-check programs. Please get in touch if you find a device with a different sha256sum.
+
 ## Board assembly and configuration
 
 The original design had a TPS2041B to control power to the HD6805V1 in case there was any behavior worth examining that was tied to a power-up event, but in practice that isn't necessary. Thus components IC1, C1A, C1B, C2A, C2B, R8, R10, R24 and the yellow LED can be omitted.
