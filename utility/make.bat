@@ -1,1 +1,1 @@
-@g++ main.cpp comms.cpp utility.cpp winserial.cpp -o hdread.exe -static -I. -std=c++17
+@g++ main.cpp comms.cpp utility.cpp winserial.cpp third_party\sha256.c -Ithird_party -o hdread.exe -static -I. -std=c++17

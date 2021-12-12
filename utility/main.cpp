@@ -18,11 +18,13 @@
 #include <algorithm>
 #include <list>
 #include <functional>
+#include <cassert>
 
 #include "comms.hpp"
 #include "utility.hpp"
 #include "winserial.hpp"
 #include "arduino_serial.hpp"
+#include "third_party/sha256.h"
 using namespace std;
 
 #define ASCII_ESC                   0x1B
@@ -318,6 +320,181 @@ Command def_cmd_echo = {
 /******************************************************************************/
 /******************************************************************************/
 
+
+template<size_t N>
+class BeMemory
+{
+public:
+    static constexpr uint16_t mask = (uint16_t)(N-1);
+    uint8_t readb(uint16_t addr) { 
+        return data[addr & mask]; 
+    }
+    uint16_t readw(uint16_t addr) { 
+        return (readb(addr) << 8) | readb(addr+1);
+    }
+    void writeb(uint16_t addr, uint8_t value) {
+        data[addr] = value;
+    }
+
+    static const size_t size = N;
+    uint8_t data[size];
+};
+
+
+uint8_t ascii2dec(uint8_t value)
+{
+    value = tolower(value);
+    uint8_t temp = 0;
+    if(value > '0' && value <= '9')
+        temp = value - '0';
+    else
+        temp = value - 'a';
+    return temp;
+}
+
+constexpr std::array<uint8_t, SHA256_DIGEST_LENGTH> SHA256_DIGEST(const char *input)
+{
+    std::array<uint8_t, SHA256_DIGEST_LENGTH> data{};
+    assert(strlen(input) == SHA256_DIGEST_LENGTH*2);
+    for(int i = 0; i < SHA256_DIGEST_LENGTH*2; i++) {        
+        uint8_t digit = ascii2dec(input[i]);
+        if(i & 1)
+            data[i] |= digit;
+        else
+            data[i] = digit << 4;
+    }
+    return data;
+}
+
+map<string, string> self_check_sha256_map = {
+    {"9088fee917e5a748c2f0b4f5458c1cbdabbd696291c69be6e605bae0ef779e8f", "HD6805V1"},
+};
+
+/* Analyze ROM and report information */
+Command def_cmd_check = {
+    .name = "check",
+    .usage = "%s file.bin",
+    .help = "Analyze HD6809V1 ROM",
+    .parse = [](auto &parser) { 
+
+        /* Vector names */
+        const uint16_t vector_base = 0xFF0;
+        const char *vector_names[] = {
+            "TIMER",
+            "INT#",
+            "SWI",
+            "RES#"
+        };
+
+        const char *vector_types[] = {
+            "Self-check",
+            "Customer"
+        };
+
+        const uint16_t checksum_address = 0xFEF;
+        const uint16_t self_check_reset_vector_address = 0xFF6;
+        const uint16_t self_check_reset_vector = 0xF80;
+        const uint16_t self_check_rom_base = self_check_reset_vector;
+        const uint16_t rom_base = 0x80;
+        const uint16_t self_check_size = 0x78;
+
+        const size_t rom_size = 0x1000;
+
+        BeMemory<rom_size> rom;
+        size_t file_size;
+        string filename;
+        command_context p;
+        FILE *fd;
+        bool has_self_check_rom = true;
+
+        /* Get filename */
+        if(!parser.next(filename)) {
+            printf("Error: No file name specified.\n");
+            return false;
+        }
+
+        /* Open file */
+        fd = fopen(filename.c_str(), "rb");
+        if(!fd) {
+            printf("Error: Can't open file `%s' for reading.\n", filename.c_str());
+            return false;
+        }
+
+        /* Get file size */
+        fseek(fd, 0, SEEK_END);
+        file_size = ftell(fd);
+        fseek(fd, 0, SEEK_SET);
+
+        if(file_size != rom.size) {
+            printf("Invalid file size (%d bytes).\n", file_size);
+            fclose(fd);
+            return false;
+        }
+
+        /* Read file data */
+        fread(rom.data, file_size, 1, fd);        
+        fclose(fd);
+        
+        for(int i = 0; i < 8; i++)
+        {
+            if((i & 3) == 0)
+                printf("%s vectors:\n", vector_types[(i >> 2) & 1]);
+            printf("* %-5s = $%04X\n", vector_names[i&3], rom.readw(vector_base + i * 2));
+        }
+
+        printf("Self-check ROM analysis:\n");
+
+        uint16_t temp = rom.readw(self_check_reset_vector_address);
+        if(temp != self_check_reset_vector || temp & 0xf000) {
+            printf("* Reset vector is not valid (%04X, expected %04X).\n", temp, self_check_reset_vector);
+        } else {
+            printf("* Reset vector is valid.\n");
+
+            /* Save ROM checksum and initialize it */
+            uint8_t rom_checksum = rom.readb(checksum_address);
+            rom.writeb(checksum_address, 0xFF);
+
+            /* Compute checksum of entire ROM */
+            uint8_t acc = 0;
+            for(int i = rom_base; i < rom.size; i++)
+            {
+                acc ^= rom.readb(i);
+            }
+
+            printf("* Internal checksum   = %02X\n", rom_checksum);
+            printf("* Calculated checksum = %02X\n", acc);
+            if(rom_checksum != acc) {
+                printf("* Checksum mismatch. Bad ROM dump or non-standard ROM size?");
+            }
+
+            /* Compute SHA256 of self-check ROM */
+            uint8_t raw_digest[SHA256_DIGEST_LENGTH];
+            string digest;
+            sha256(rom.data, self_check_size, raw_digest);
+            for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+            {
+                const char *hextab = "0123456789abcdef";
+                digest += hextab[(raw_digest[i] >> 4) & 0x0F];
+                digest += hextab[(raw_digest[i] >> 0) & 0x0F];
+            }
+            printf("* ROM SHA256 = %s\n", digest.c_str());
+
+            auto result = self_check_sha256_map.find(digest);
+            if(result != self_check_sha256_map.end())
+            {
+                printf("* ROM matches device type %s\n", result->second.c_str());
+            } else {
+                printf("* ROM does not match any known device type.\n");
+            }
+        }
+        return true;
+     }
+};
+
+
+/******************************************************************************/
+/******************************************************************************/
+
 /* Option: Specify COM port */
 Command def_opt_port = {
     .name = "--port",
@@ -374,6 +551,7 @@ vector<Command*> sub_command_list = {
 
     // Device
     &def_cmd_read, 
+    &def_cmd_check,
 };
 
 /* All supported commands and options */
