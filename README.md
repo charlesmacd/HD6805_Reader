@@ -114,6 +114,18 @@ The V1 design was the first one I made and it works fine but needs some correcti
 The V2 design has these changes made and the schematic was cleaned up considerably so I'd advise building that one instead.
 I haven't tested it myself but it was a minor set of changes.
 
+### Bill of materials
+
+| Location | Size | Type | Manufacturer P/N |
+|- |- |- |- |
+| C1A,C2A | 0603 | Ceramic, 0.1uF, 10V | C0603C104Z3VACTU |
+ C1B,C2B | 0603 | Ceramic, 0.01uF, 10V | 06035C103KAT2A |
+| R1-R8/R11-R15/R16-R24 | 0603 | 1K ohm, any tolerance | CRCW06031K00FKEAC |
+| R9/R10 | 0603 | 10K ohm, any tolerance | SFR03EZPF1002 |
+| FLT | 3mm | Yellow LED, diffused | TLHY4400-AS12Z |
+| IC1 | SOIC-8 | TPS2041B load switch | TPS2041BD |
+| JP3/4/6/7 | N/A | Arduino UNO stacking headers | Adafruit P/N: 485 or Mouser P/N: 485-85 |
+
 ### Jumper configurations
 
 See the photo for more details.
