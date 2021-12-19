@@ -119,8 +119,8 @@ I haven't tested it myself but it was a minor set of changes.
 | Location | Size | Type | Manufacturer P/N |
 |- |- |- |- |
 | C1A,C2A | 0603 | Ceramic, 0.1uF, 10V | C0603C104Z3VACTU |
- C1B,C2B | 0603 | Ceramic, 0.01uF, 10V | 06035C103KAT2A |
-| R1-R8/R11-R15/R16-R24 | 0603 | 1K ohm, any tolerance | CRCW06031K00FKEAC |
+ |C1B,C2B | 0603 | Ceramic, 0.01uF, 10V | 06035C103KAT2A |
+| R1-R8/R11-R15/R16-R24 | 0603 | 1K ohm, 1/10W, any tolerance | CRCW06031K00FKEAC |
 | R9/R10 | 0603 | 10K ohm, any tolerance | SFR03EZPF1002 |
 | FLT | 3mm | Yellow LED, diffused | TLHY4400-AS12Z |
 | IC1 | SOIC-8 | TPS2041B load switch | TPS2041BD |
