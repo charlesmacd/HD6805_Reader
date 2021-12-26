@@ -183,7 +183,7 @@ Command def_cmd_scan = {
 Command def_cmd_read = {
     .name = "read",
     .usage = "%s output.bin",
-    .help = "Read HD6809V1 device",
+    .help = "Read HD6805V1 device",
     .parse = [](auto &parser) { 
         string filename;
         command_context p;
@@ -374,7 +374,7 @@ map<string, string> self_check_sha256_map = {
 Command def_cmd_check = {
     .name = "check",
     .usage = "%s file.bin",
-    .help = "Analyze HD6809V1 ROM",
+    .help = "Analyze HD6805V1 ROM",
     .parse = [](auto &parser) { 
 
         /* Vector names */
