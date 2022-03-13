@@ -7,6 +7,8 @@ WWW: http://techno-junk.org
 Arduino shield used to read the internal ROM of some Hitachi HD6805 devices.
 
 Based on the information and research of Sean Riddle (https://seanriddle.com/mc6805p2.html)
+
+**NEW**: Check out the Dumping Log in the Wiki: https://github.com/charlesmacd/HD6805_Reader/wiki
  
 ## Overview
 
